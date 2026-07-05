@@ -1,11 +1,9 @@
 from code.Entity import Entity
 from code.Const import COOLDOWN, INVINCIBLE_TIME
 
-
 class Character(Entity):
 
-    def __init__(self, name, image, position, health, speed):
-
+    def __init__(self, name, image, position, health, speed, facing):
         super().__init__(name, image, position)
 
         # Life
@@ -32,14 +30,14 @@ class Character(Entity):
         self.invincible_time = INVINCIBLE_TIME
         self.last_hit = 0
 
+        self.facing = facing
+
 
     def receive_damage(self, damage):
-
         if self.invincible:
             return
 
         self.health -= damage
-
         if self.health < 0:
             self.health = 0
 

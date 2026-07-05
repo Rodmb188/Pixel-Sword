@@ -10,9 +10,9 @@ class Player(Character):
 
     def move(self):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_a]:
+        if keys[pygame.K_a]: # Walk backward
             self.rect.x -= self.speed
-        if keys[pygame.K_d]:
+        if keys[pygame.K_d]: # Walk forward
             self.rect.x += self.speed
 
         if self.rect.left < 0: # Cannot exit the screen
