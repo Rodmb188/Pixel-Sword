@@ -1,5 +1,7 @@
+import pygame
+
 from code.Entity import Entity
-from code.Const import COOLDOWN, INVINCIBLE_TIME
+from code.Const import BODY_CHEST, BODY_HEAD, BODY_LEG, COOLDOWN, INVINCIBLE_TIME
 
 class Character(Entity):
 
@@ -28,12 +30,17 @@ class Character(Entity):
         # Invincibility
         self.invincible = False
         self.invincible_time = INVINCIBLE_TIME
-        self.last_hit = 0
 
         self.facing = facing
 
+        self.head_rect = pygame.Rect(0, 0, self.rect.width, BODY_HEAD)
+        self.body_rect = pygame.Rect(0, 0, self.rect.width, BODY_CHEST)
+        self.leg_rect = pygame.Rect(0, 0, self.rect.width, BODY_LEG)
 
-    def receive_damage(self, damage):
+        self.update_hitboxes()
+
+
+    def take_damage(self, damage):
         if self.invincible:
             return
 
@@ -41,10 +48,38 @@ class Character(Entity):
         if self.health < 0:
             self.health = 0
 
+        self.invincible = True
+        self.invincible_start = pygame.time.get_ticks()
+
 
     def is_alive(self):
         return self.health > 0
+    
+    def update_hitboxes(self):
+        self.head_rect.topleft = (
+        self.rect.left,
+        self.rect.top
+    )
 
+        self.body_rect.topleft = (
+        self.rect.left,
+        self.rect.top + self.head_rect.height
+    )
+
+        self.leg_rect.topleft = (
+        self.rect.left,
+        self.body_rect.bottom
+    )
 
     def attack(self):
         pass
+
+    def update_invincibility(self):
+
+        if not self.invincible:
+            return
+
+        current_time = pygame.time.get_ticks()
+
+        if current_time - self.invincible_start >= self.invincible_time:
+            self.invincible = False

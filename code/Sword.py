@@ -1,6 +1,6 @@
 import pygame
 
-from code.Const import ATTACK_RANGE, ATTACK_START, ATTACK_TIME, C_GRAY, D_BOTTOM, D_MID, D_TOP, DIRECTION_E, G_BOTTOM, G_TOP, SWORD_HB
+from code.Const import ATTACK_OFFSET, ATTACK_RANGE, ATTACK_START, ATTACK_TIME, C_GRAY, D_BOTTOM, D_MID, D_TOP, DIRECTION_E, G_BOTTOM, G_TOP, SWORD_HB
 
 class Sword:
 
@@ -11,7 +11,7 @@ class Sword:
 
         self.attack_duration = ATTACK_TIME
         self.attack_start = ATTACK_START
-        self.attack_offset = 0
+        self.attack_offset = ATTACK_OFFSET
 
         self.rect = pygame.Rect(SWORD_HB)
 
@@ -30,7 +30,7 @@ class Sword:
             self.attack_offset = ATTACK_RANGE
             if current_time - self.attack_start >= self.attack_duration:
                 self.attacking = False
-                self.attack_offset = 0
+                self.attack_offset = ATTACK_OFFSET
 
         self.update_position()
 

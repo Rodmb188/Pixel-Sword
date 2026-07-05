@@ -7,6 +7,8 @@ class Player(Character):
 
     def update(self):
         self.move()
+        self.update_hitboxes()
+        self.update_invincibility()
 
     def move(self):
         keys = pygame.key.get_pressed()

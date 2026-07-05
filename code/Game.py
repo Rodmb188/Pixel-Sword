@@ -1,6 +1,6 @@
 import pygame
 import sys
-from code.Const import BG_COLOR, CHAR_DIMENSION, C_BLUE, C_RED, DIRECTION_E, DIRECTION_W, FPS, G_BOTTOM, G_MID, G_TOP, HEALTH, SPAWN_E, SPAWN_P, SPEED, TITLE, WIN_HEIGHT, WIN_WIDTH
+from code.Const import ATTACK_OFFSET, BG_COLOR, CHAR_DIMENSION, C_BLUE, C_RED, D_BODY, D_HEAD, D_LEG, DIRECTION_E, DIRECTION_W, FPS, G_BOTTOM, G_MID, G_TOP, HEALTH, KNOCKBACK, SPAWN_E, SPAWN_P, SPEED, TITLE, WIN_HEIGHT, WIN_WIDTH
 from code.Enemy import Enemy
 from code.Player import Player
 from code.Sword import Sword
@@ -76,13 +76,32 @@ class Game:
         self.enemy.sword.update()
 
         self.check_collision()
+        self.check_round()
 
     def check_collision(self):
         sword = self.player.sword
 
         if (sword.attacking and not sword.has_hit and sword.rect.colliderect(self.enemy.rect)):
             sword.has_hit = True
-            print("Hit!")
+        if sword.rect.colliderect(self.enemy.head_rect):
+            # print("HEAD") # Testing Hitbox
+            damage = D_HEAD
+        elif sword.rect.colliderect(self.enemy.body_rect):
+            # print("BODDY") # Testing Hitbox
+            damage = D_BODY
+        elif sword.rect.colliderect(self.enemy.leg_rect):
+            # print("LEG") # Testing Hitbox
+            damage = D_LEG
+        else:
+            return
+                
+        old_health = self.enemy.health
+        self.enemy.take_damage(damage)
+
+        if self.enemy.health != old_health:
+            sword.has_hit = True
+            self.enemy.rect.x += KNOCKBACK
+            print(f"Enemy HP: {self.enemy.health}")
 
     def draw(self):
         self.screen.fill(BG_COLOR)
@@ -94,3 +113,35 @@ class Game:
         self.enemy.sword.draw(self.screen)
 
         pygame.display.flip()
+    
+    def reset_round(self):
+        self.player.health = self.player.max_health
+        self.enemy.health = self.enemy.max_health
+
+        self.player.rect.topleft = SPAWN_P
+        self.enemy.rect.topleft = SPAWN_E
+
+        self.player.update_hitboxes()
+        self.enemy.update_hitboxes()
+
+        self.player.invincible = False
+        self.enemy.invincible = False
+
+        self.player.guard = G_MID
+        self.enemy.guard = G_MID
+
+        self.player.sword.attacking = False
+        self.enemy.sword.attacking = False
+
+        self.player.sword.attack_offset = ATTACK_OFFSET
+        self.enemy.sword.attack_offset = ATTACK_OFFSET
+
+    def check_round(self):
+        if not self.enemy.is_alive():
+            print("PLAYER WINS THE ROUND!")
+            pygame.time.delay(1500)
+            self.reset_round()
+        elif not self.player.is_alive():
+            print("ENEMY WINS THE ROUND!")
+            pygame.time.delay(1500)
+            self.reset_round()
