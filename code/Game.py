@@ -57,6 +57,16 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
+            elif event.type == pygame.KEYDOWN:
+                
+                if event.key == pygame.K_j:
+                    self.player.change_guard(G_TOP)
+                elif event.key == pygame.K_k:
+                    self.player.change_guard(G_MID)
+                elif event.key == pygame.K_l:
+                    self.player.change_guard(G_BOTTOM)
+                elif event.key == pygame.K_SPACE:
+                    self.player.attack()
 
     def update(self):
         self.player.update()
@@ -64,6 +74,13 @@ class Game:
 
         self.player.sword.update()
         self.enemy.sword.update()
+
+        self.check_collision()
+
+    def check_collision(self):
+        if self.player.sword.attacking:
+            if self.player.sword.rect.colliderect(self.enemy.rect):
+                print("Hit!")
 
     def draw(self):
         self.screen.fill(BG_COLOR)
