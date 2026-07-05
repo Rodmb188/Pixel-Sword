@@ -8,6 +8,7 @@ BG_COLOR = (30, 30, 30)
 #C
 COOLDOWN = 500
 C_BLUE = (0, 0, 255)
+C_RED = (255, 0, 0)
 CHAR_DIMENSION = (50, 100)
 
 #D

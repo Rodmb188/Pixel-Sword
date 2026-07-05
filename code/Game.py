@@ -1,6 +1,7 @@
 import pygame
 import sys
-from code.Const import BG_COLOR, CHAR_DIMENSION, C_BLUE, FPS, G_BOTTOM, G_MID, G_TOP, HEALTH, SPEED, TITLE, WIN_HEIGHT, WIN_WIDTH
+from code.Const import BG_COLOR, CHAR_DIMENSION, C_BLUE, C_RED, FPS, G_BOTTOM, G_MID, G_TOP, HEALTH, SPEED, TITLE, WIN_HEIGHT, WIN_WIDTH
+from code.Enemy import Enemy
 from code.Player import Player
 
 class Game:
@@ -23,6 +24,17 @@ class Game:
             "Player",
             player_image,
             (100, 500),
+            HEALTH,
+            SPEED
+        )
+
+        enemy_image = pygame.Surface((CHAR_DIMENSION))
+        enemy_image.fill((C_RED))
+
+        self.enemy = Enemy(
+            "Enemy",
+            enemy_image,
+            (1000, 500),
             HEALTH,
             SPEED
         )
@@ -58,8 +70,10 @@ class Game:
 
     def update(self):
         self.player.update()
+        self.enemy.update()
 
     def draw(self):
         self.screen.fill(BG_COLOR)
         self.player.draw(self.screen)
+        self.enemy.draw(self.screen)
         pygame.display.flip()
