@@ -17,6 +17,10 @@ D_HEAD = 5
 D_BODY = 3
 D_LEG = 1
 
+D_TOP = -25
+D_MID = 0
+D_BOTTOM = 25
+
 DIRECTION_W = 1
 DIRECTION_E = -1
 
@@ -43,7 +47,7 @@ SPEED_ATTACK = 5
 SWORD_HB = (0, 0, 40, 6)
 
 #T
-TITLE = "Fencing Duel"
+TITLE = "Pixel Sword"
 
 #W
 WIN_WIDTH = 1280

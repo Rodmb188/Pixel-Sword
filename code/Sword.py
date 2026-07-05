@@ -1,6 +1,6 @@
 import pygame
 
-from code.Const import ATTACK_START, ATTACK_TIME, C_GRAY, DIRECTION_E, SWORD_HB
+from code.Const import ATTACK_START, ATTACK_TIME, C_GRAY, D_BOTTOM, D_MID, D_TOP, DIRECTION_W, G_BOTTOM, G_TOP, SWORD_HB
 
 class Sword:
 
@@ -30,10 +30,27 @@ class Sword:
 
 
     def update_position(self):
-        if self.owner.facing == DIRECTION_E:
-            self.rect.midleft = self.owner.rect.midright
+        # Descobre a altura da guarda
+        if self.owner.guard == G_TOP:
+            offset_y = D_TOP
+        elif self.owner.guard == G_BOTTOM:
+            offset_y = D_BOTTOM
         else:
-            self.rect.midright = self.owner.rect.midleft
+            offset_y = D_MID
+
+        # Personagem olhando para a direita
+        if self.owner.facing != DIRECTION_W:
+            self.rect.midleft = (
+                self.owner.rect.right,
+                self.owner.rect.centery + offset_y
+            )
+        # Personagem olhando para a esquerda
+        else:
+            self.rect.midright = (
+                self.owner.rect.left,
+                self.owner.rect.centery + offset_y
+            )
+
 
     def draw(self, screen):
         pygame.draw.rect(screen, (C_GRAY), self.rect)
