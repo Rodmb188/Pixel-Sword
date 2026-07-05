@@ -3,7 +3,6 @@ from abc import ABC
 class Entity(ABC):
 
     def __init__(self, name, image, position):
-
         self.name = name
         self.image = image
 

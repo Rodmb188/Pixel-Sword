@@ -1,6 +1,6 @@
 import pygame
 import sys
-from code.Const import BG_COLOR, CHAR_DIMENSION, C_BLUE, C_RED, DIRECTION_E, DIRECTION_W, FPS, G_BOTTOM, G_MID, G_TOP, HEALTH, SPEED, TITLE, WIN_HEIGHT, WIN_WIDTH
+from code.Const import BG_COLOR, CHAR_DIMENSION, C_BLUE, C_RED, DIRECTION_E, DIRECTION_W, FPS, G_BOTTOM, G_MID, G_TOP, HEALTH, SPAWN_E, SPAWN_P, SPEED, TITLE, WIN_HEIGHT, WIN_WIDTH
 from code.Enemy import Enemy
 from code.Player import Player
 from code.Sword import Sword
@@ -8,24 +8,21 @@ from code.Sword import Sword
 class Game:
 
     def __init__(self):
-
         pygame.init()
 
         self.screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
         pygame.display.set_caption(TITLE)
 
         self.clock = pygame.time.Clock()
-
         self.running = True
 
-        
         player_image = pygame.Surface((CHAR_DIMENSION))
         player_image.fill((C_BLUE))
 
         self.player = Player(
             "Player",
             player_image,
-            (100, 500),
+            (SPAWN_P),
             HEALTH,
             SPEED,
             DIRECTION_E
@@ -38,7 +35,7 @@ class Game:
         self.enemy = Enemy(
             "Enemy",
             enemy_image,
-            (1000, 500),
+            (SPAWN_E),
             HEALTH,
             SPEED,
             DIRECTION_W
