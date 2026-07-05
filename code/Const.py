@@ -1,0 +1,40 @@
+#A
+ATTACK_TIME = 150
+ATTACK_START = 0
+
+#B
+BG_COLOR = (30, 30, 30)
+
+#C
+COOLDOWN = 500
+
+#D
+D_HEAD = 5
+D_BODY = 3
+D_LEG = 1
+
+#F
+FPS = 60
+
+#G
+G_TOP = 1
+G_MID = 2
+G_BOTTOM = 3
+
+#H
+HEALTH = 10
+
+#I
+INVINCIBLE_TIME = 1000
+
+#S
+SPEED = 5
+SPEED_MIN = 1
+SPEED_ATTACK = 5
+
+#T
+TITLE = "Fencing Duel"
+
+#W
+WIN_WIDTH = 1280
+WIN_HEIGHT = 720
