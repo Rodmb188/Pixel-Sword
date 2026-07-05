@@ -7,6 +7,7 @@ class Sword:
     def __init__(self, owner):
         self.owner = owner
         self.attacking = False
+        self.has_hit = False
 
         self.attack_duration = ATTACK_TIME
         self.attack_start = ATTACK_START
@@ -20,6 +21,7 @@ class Sword:
         
         self.attacking = True
         self.attack_start = pygame.time.get_ticks()
+        self.has_hit = False
 
     def update(self):
         current_time = pygame.time.get_ticks()

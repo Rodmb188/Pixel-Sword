@@ -78,9 +78,11 @@ class Game:
         self.check_collision()
 
     def check_collision(self):
-        if self.player.sword.attacking:
-            if self.player.sword.rect.colliderect(self.enemy.rect):
-                print("Hit!")
+        sword = self.player.sword
+
+        if (sword.attacking and not sword.has_hit and sword.rect.colliderect(self.enemy.rect)):
+            sword.has_hit = True
+            print("Hit!")
 
     def draw(self):
         self.screen.fill(BG_COLOR)
