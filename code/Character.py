@@ -1,4 +1,4 @@
-from Entity import Entity
+from code.Entity import Entity
 from code.Const import COOLDOWN, INVINCIBLE_TIME
 
 
