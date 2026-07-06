@@ -1,6 +1,6 @@
 import pygame
 import sys
-from code.Const import ATTACK_OFFSET, BG_COLOR, CHAR_DIMENSION, COLLISION_GAP, C_BLUE, C_RED, D_BODY, D_HEAD, D_LEG, DIRECTION_E, DIRECTION_W, FPS, G_BOTTOM, G_MID, G_TOP, HEALTH, KNOCKBACK, SPAWN_E, SPAWN_P, SPEED, SPEED_MIN, TITLE, WIN_HEIGHT, WIN_WIDTH
+from code.Const import ATTACK_OFFSET, BAR_ENEMY_POS, BAR_HEIGHT, BAR_PLAYER_POS, BAR_WIDTH, BG_COLOR, C_DARK_RED, C_GREEN, C_WHITE, CHAR_DIMENSION, COLLISION_GAP, C_BLUE, C_RED, D_BODY, D_HEAD, D_LEG, DIRECTION_E, DIRECTION_W, FPS, G_BOTTOM, G_MID, G_TOP, HEALTH, HUD_SCORE_Y, KNOCKBACK, ROUNDS_TO_WIN, SPAWN_E, SPAWN_P, SPEED, SPEED_MIN, TITLE, WIN_HEIGHT, WIN_WIDTH
 from code.Enemy import Enemy
 from code.Player import Player
 from code.Sword import Sword
@@ -12,6 +12,7 @@ class Game:
 
         self.screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
         pygame.display.set_caption(TITLE)
+        self.font = pygame.font.SysFont("arial", 28)
 
         self.clock = pygame.time.Clock()
         self.running = True
@@ -134,6 +135,7 @@ class Game:
 
     def draw(self):
         self.screen.fill(BG_COLOR)
+        self.draw_hud()
 
         self.player.draw(self.screen)
         self.enemy.draw(self.screen)
@@ -176,7 +178,7 @@ class Game:
             self.player_score += 1
             print(f"Player {self.player_score} x {self.enemy_score} Enemy")
             
-            if self.player_score == 3:
+            if self.player_score == ROUNDS_TO_WIN:
                 print("You Win!")
                 self.running = False
                 return
@@ -188,10 +190,39 @@ class Game:
             self.enemy_score += 1
             print(f"Player {self.player_score} x {self.enemy_score} Enemy")
             
-            if self.enemy_score == 3:
+            if self.enemy_score == ROUNDS_TO_WIN:
                 print("Nice Try")
                 self.running = False
                 return
             
             pygame.time.delay(1500)
             self.reset_round()
+    
+    def draw_hud(self):
+
+        # Player Life Bar
+        pygame.draw.rect(self.screen, C_DARK_RED, (*BAR_PLAYER_POS, BAR_WIDTH, BAR_HEIGHT))
+        pygame.draw.rect(
+            self.screen, C_GREEN,
+            (*BAR_PLAYER_POS, BAR_WIDTH * self.player.health / self.player.max_health, BAR_HEIGHT)
+        )
+
+        # Enemy Life Bar
+        pygame.draw.rect(self.screen, C_DARK_RED, (*BAR_ENEMY_POS, BAR_WIDTH, BAR_HEIGHT))
+        pygame.draw.rect(
+            self.screen, C_GREEN,
+            (*BAR_ENEMY_POS, BAR_WIDTH * self.enemy.health / self.enemy.max_health, BAR_HEIGHT)
+        )
+        score = self.font.render(
+            f"{self.player_score}  x  {self.enemy_score}",
+            True,
+            C_WHITE
+        )
+
+        self.screen.blit(
+            score,
+            (
+                WIN_WIDTH // 2 - score.get_width() // 2,
+                HUD_SCORE_Y
+            )
+        )
