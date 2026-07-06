@@ -1,6 +1,6 @@
 import pygame
 import sys
-from code.Const import ATTACK_OFFSET, BG_COLOR, CHAR_DIMENSION, C_BLUE, C_RED, D_BODY, D_HEAD, D_LEG, DIRECTION_E, DIRECTION_W, FPS, G_BOTTOM, G_MID, G_TOP, HEALTH, KNOCKBACK, SPAWN_E, SPAWN_P, SPEED, TITLE, WIN_HEIGHT, WIN_WIDTH
+from code.Const import ATTACK_OFFSET, BG_COLOR, CHAR_DIMENSION, COLLISION_GAP, C_BLUE, C_RED, D_BODY, D_HEAD, D_LEG, DIRECTION_E, DIRECTION_W, FPS, G_BOTTOM, G_MID, G_TOP, HEALTH, KNOCKBACK, SPAWN_E, SPAWN_P, SPEED, SPEED_MIN, TITLE, WIN_HEIGHT, WIN_WIDTH
 from code.Enemy import Enemy
 from code.Player import Player
 from code.Sword import Sword
@@ -73,37 +73,63 @@ class Game:
 
     def update(self):
         self.player.update()
-        self.enemy.update()
+        self.enemy.update(self.player)
+        
+        self.resolve_collision()
 
         self.player.sword.update()
         self.enemy.sword.update()
 
-        self.check_collision()
+        self.check_hit(self.player, self.enemy)
+        self.check_hit(self.enemy, self.player)
+
         self.check_round()
 
-    def check_collision(self):
-        sword = self.player.sword
+    def resolve_collision(self):
+        if self.player.rect.right >= self.enemy.rect.left - COLLISION_GAP:
+            self.player.rect.right = self.enemy.rect.left - COLLISION_GAP
 
-        if (sword.attacking and not sword.has_hit and sword.rect.colliderect(self.enemy.rect)):
-            sword.has_hit = True
-        if sword.rect.colliderect(self.enemy.head_rect):
+            self.player.update_hitboxes()
+            self.enemy.update_hitboxes()
+
+    def check_hit(self, attacker, defender):
+        sword = attacker.sword
+        
+        if not sword.attacking or sword.has_hit:
+            return
+        
+        if sword.rect.colliderect(defender.head_rect):
             # print("HEAD") # Testing Hitbox
             damage = D_HEAD
-        elif sword.rect.colliderect(self.enemy.body_rect):
+            hit_guard = G_TOP
+        elif sword.rect.colliderect(defender.body_rect):
             # print("BODDY") # Testing Hitbox
             damage = D_BODY
-        elif sword.rect.colliderect(self.enemy.leg_rect):
+            hit_guard = G_MID
+        elif sword.rect.colliderect(defender.leg_rect):
             # print("LEG") # Testing Hitbox
             damage = D_LEG
+            hit_guard = G_BOTTOM
         else:
             return
-                
-        old_health = self.enemy.health
-        self.enemy.take_damage(damage)
-
-        if self.enemy.health != old_health:
+        
+        if defender.guard == hit_guard:
             sword.has_hit = True
-            self.enemy.rect.x += KNOCKBACK
+            print("BLOCK!")
+            return
+        
+        old_health = defender.health
+        defender.take_damage(damage)
+
+        if defender.health != old_health:
+            sword.has_hit = True
+            if attacker.facing == DIRECTION_E:
+                defender.rect.x += KNOCKBACK
+            else:
+                defender.rect.x -= KNOCKBACK
+            if hit_guard == G_BOTTOM:
+                defender.speed = SPEED_MIN
+                defender.backward_speed = max(1, SPEED_MIN - 1)
             print(f"Enemy HP: {self.enemy.health}")
 
     def draw(self):
@@ -120,6 +146,12 @@ class Game:
     def reset_round(self):
         self.player.health = self.player.max_health
         self.enemy.health = self.enemy.max_health
+
+        self.player.speed = self.player.base_speed
+        self.player.backward_speed = self.player.base_backward_speed
+
+        self.enemy.speed = self.enemy.base_speed
+        self.enemy.backward_speed = self.enemy.base_backward_speed
 
         self.player.rect.topleft = SPAWN_P
         self.enemy.rect.topleft = SPAWN_E
@@ -156,18 +188,10 @@ class Game:
             self.enemy_score += 1
             print(f"Player {self.player_score} x {self.enemy_score} Enemy")
             
-            if self.player_score == 3:
+            if self.enemy_score == 3:
                 print("Nice Try")
                 self.running = False
                 return
             
             pygame.time.delay(1500)
             self.reset_round()
-            
-
-
-
-
-
-        pygame.time.delay(1500)
-        self.reset_round()
