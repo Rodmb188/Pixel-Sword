@@ -18,6 +18,9 @@ class Game:
 
         player_image = pygame.Surface((CHAR_DIMENSION))
         player_image.fill((C_BLUE))
+        
+        self.player_score = 0
+        self.enemy_score = 0
 
         self.player = Player(
             "Player",
@@ -138,10 +141,33 @@ class Game:
 
     def check_round(self):
         if not self.enemy.is_alive():
-            print("PLAYER WINS THE ROUND!")
+            self.player_score += 1
+            print(f"Player {self.player_score} x {self.enemy_score} Enemy")
+            
+            if self.player_score == 3:
+                print("You Win!")
+                self.running = False
+                return
+            
             pygame.time.delay(1500)
             self.reset_round()
+
         elif not self.player.is_alive():
-            print("ENEMY WINS THE ROUND!")
+            self.enemy_score += 1
+            print(f"Player {self.player_score} x {self.enemy_score} Enemy")
+            
+            if self.player_score == 3:
+                print("Nice Try")
+                self.running = False
+                return
+            
             pygame.time.delay(1500)
             self.reset_round()
+            
+
+
+
+
+
+        pygame.time.delay(1500)
+        self.reset_round()
