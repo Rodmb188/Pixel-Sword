@@ -94,22 +94,22 @@ class Game:
                         elif self.menu.selected == 2:
                             self.running = False
             
-            if self.state == PLAYING:
-                if event.key == pygame.K_j:
-                    self.player.change_guard(G_TOP)
-                elif event.key == pygame.K_k:
-                    self.player.change_guard(G_MID)
-                elif event.key == pygame.K_l:
-                    self.player.change_guard(G_BOTTOM)
-                elif event.key == pygame.K_SPACE:
-                    self.player.attack()
+                if self.state == PLAYING:
+                    if event.key == pygame.K_j:
+                        self.player.change_guard(G_TOP)
+                    elif event.key == pygame.K_k:
+                        self.player.change_guard(G_MID)
+                    elif event.key == pygame.K_l:
+                        self.player.change_guard(G_BOTTOM)
+                    elif event.key == pygame.K_SPACE:
+                        self.player.attack()
             
-            if self.state == GAME_OVER:
-                if event.key == pygame.K_RETURN:
-                    self.player_score = 0
-                    self.enemy_score = 0
-                    self.reset_round()
-                    
+                if self.state == GAME_OVER:
+                    if event.key == pygame.K_RETURN:
+                        self.player_score = 0
+                        self.enemy_score = 0
+                        self.reset_round()
+
                     self.state = MENU
 
     def update(self):
@@ -296,17 +296,28 @@ class Game:
         )
 
     def draw_game_over(self):
-        text = self.font.render(
-            f"{self.winner} WINS!", True, C_WHITE
-        )
 
-        restart_text = self.font.render(
-            "Press ENTER",
-            True,
-            C_WHITE
-        )
+        # Old draw_game_over
+        # ------------------------------
+        # text = self.font.render(
+        #     f"{self.winner} WINS!", True, C_WHITE
+        # )
+
+        # restart_text = self.font.render(
+        #     "Press ENTER to return to menu",
+        #     True,
+        #     C_WHITE
+        # )
         
-        self.screen.blit(
-            restart_text,
-            (WIN_WIDTH // 2 - text.get_width() // 2, WIN_HEIGHT // 2 + 50)
-        )
+        # self.screen.blit(
+        #     restart_text,
+        #     (WIN_WIDTH // 2 - text.get_width() // 2, WIN_HEIGHT // 2 + 50)
+        # )
+        # Winner Text
+        text = self.font.render(f"{self.winner} WINS!", True, C_WHITE)
+        text_rect = text.get_rect(center=(WIN_WIDTH // 2, WIN_HEIGHT // 2))
+        self.screen.blit(text, text_rect)
+
+        restart_text = self.font.render("Press ENTER to return to menu", True, C_WHITE)
+        restart_rect = restart_text.get_rect(center=(WIN_WIDTH // 2, WIN_HEIGHT // 2 + 50))
+        self.screen.blit(restart_text, restart_rect)
