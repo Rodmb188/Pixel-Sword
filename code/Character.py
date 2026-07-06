@@ -1,7 +1,7 @@
 import pygame
 
 from code.Entity import Entity
-from code.Const import BODY_CHEST, BODY_HEAD, BODY_LEG, COOLDOWN, INVINCIBLE_TIME
+from code.Const import BODY_CHEST, BODY_HEAD, BODY_LEG, COOLDOWN, INVINCIBLE_TIME, G_MID, SPEED_BACKWARD
 
 class Character(Entity):
 
@@ -15,9 +15,11 @@ class Character(Entity):
         # Move_Speed
         self.base_speed = speed
         self.speed = speed
-
+        self.base_backward_speed = SPEED_BACKWARD
+        self.backward_speed = SPEED_BACKWARD
+        
         # Combat
-        self.guard = None
+        self.guard = G_MID
         self.state = "idle"
 
         # Weapon
@@ -39,7 +41,6 @@ class Character(Entity):
 
         self.update_hitboxes()
 
-
     def take_damage(self, damage):
         if self.invincible:
             return
@@ -50,7 +51,6 @@ class Character(Entity):
 
         self.invincible = True
         self.invincible_start = pygame.time.get_ticks()
-
 
     def is_alive(self):
         return self.health > 0
@@ -70,12 +70,15 @@ class Character(Entity):
         self.rect.left,
         self.body_rect.bottom
     )
+        
+    def change_guard(self, guard): 
+        self.guard = guard
 
     def attack(self):
-        pass
+        if self.sword is not None: # Just while does not have a sword. It can't attack
+            self.sword.attack()
 
     def update_invincibility(self):
-
         if not self.invincible:
             return
 
