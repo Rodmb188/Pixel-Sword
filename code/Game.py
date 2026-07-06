@@ -1,9 +1,12 @@
 import pygame
 import sys
-from code.Const import ATTACK_OFFSET, BAR_ENEMY_POS, BAR_HEIGHT, BAR_PLAYER_POS, BAR_WIDTH, BG_COLOR, C_DARK_RED, C_GREEN, C_WHITE, CHAR_DIMENSION, COLLISION_GAP, C_BLUE, C_RED, D_BODY, D_HEAD, D_LEG, DIRECTION_E, DIRECTION_W, FPS, G_BOTTOM, G_MID, G_TOP, HEALTH, HUD_SCORE_Y, KNOCKBACK, ROUNDS_TO_WIN, SPAWN_E, SPAWN_P, SPEED, SPEED_MIN, TITLE, WIN_HEIGHT, WIN_WIDTH
+from code.Const import ATTACK_OFFSET, BAR_ENEMY_POS, BAR_HEIGHT, BAR_PLAYER_POS, BAR_WIDTH, BG_COLOR, C_DARK_RED, C_GREEN, C_WHITE, CHAR_DIMENSION, COLLISION_GAP, C_BLUE, C_RED, D_BODY, D_HEAD, D_LEG, DIRECTION_E, DIRECTION_W, FONT_NAME, FONT_SIZE, FPS, G_BOTTOM, G_MID, G_TOP, HEALTH, HUD_SCORE_Y, KNOCKBACK, ROUNDS_TO_WIN, SPAWN_E, SPAWN_P, SPEED, SPEED_MIN, TITLE, WIN_HEIGHT, WIN_WIDTH
+from code.State import COMMANDS, MENU, PLAYING, GAME_OVER
+from code.Commands import Commands
 from code.Enemy import Enemy
 from code.Player import Player
 from code.Sword import Sword
+from code.Menu import Menu
 
 class Game:
 
@@ -12,7 +15,9 @@ class Game:
 
         self.screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
         pygame.display.set_caption(TITLE)
-        self.font = pygame.font.SysFont("arial", 28)
+        self.font = pygame.font.SysFont(FONT_NAME, FONT_SIZE)
+
+        self.menu = Menu()
 
         self.clock = pygame.time.Clock()
         self.running = True
@@ -22,6 +27,13 @@ class Game:
         
         self.player_score = 0
         self.enemy_score = 0
+        
+        self.round_ending = False
+        self.round_end_time = 0
+
+        self.state = MENU
+        self.winner = None
+        self.commands = Commands()
 
         self.player = Player(
             "Player",
@@ -63,6 +75,26 @@ class Game:
                 self.running = False
             elif event.type == pygame.KEYDOWN:
                 
+                if self.state == COMMANDS:
+                    if event.key == pygame.K_ESCAPE:
+                        self.state = MENU
+
+                if self.state == MENU:
+                    if event.key == pygame.K_UP:
+                        self.menu.move_up()
+                    elif event.key == pygame.K_DOWN:
+                        self.menu.move_down()
+                    elif event.key == pygame.K_RETURN:
+                        if self.menu.selected == 0:
+                            self.state = PLAYING
+
+                        elif self.menu.selected == 1:
+                            self.state = COMMANDS
+
+                        elif self.menu.selected == 2:
+                            self.running = False
+            
+            if self.state == PLAYING:
                 if event.key == pygame.K_j:
                     self.player.change_guard(G_TOP)
                 elif event.key == pygame.K_k:
@@ -71,8 +103,27 @@ class Game:
                     self.player.change_guard(G_BOTTOM)
                 elif event.key == pygame.K_SPACE:
                     self.player.attack()
+            
+            if self.state == GAME_OVER:
+                if event.key == pygame.K_RETURN:
+                    self.player_score = 0
+                    self.enemy_score = 0
+                    self.reset_round()
+                    
+                    self.state = MENU
 
     def update(self):
+        if self.state != PLAYING:
+            return
+        
+        if self.round_ending:
+            current_time = pygame.time.get_ticks()
+
+            if current_time - self.round_end_time >= 1000:
+                    self.round_ending = False
+                    self.reset_round()
+            return
+    
         self.player.update()
         self.enemy.update(self.player)
         
@@ -135,14 +186,28 @@ class Game:
 
     def draw(self):
         self.screen.fill(BG_COLOR)
-        self.draw_hud()
 
-        self.player.draw(self.screen)
-        self.enemy.draw(self.screen)
+        if self.state == MENU:
+            self.menu.draw(self.screen, self.font)
+
+        elif self.state == COMMANDS:
+            self.commands.draw(
+                self.screen,
+                self.font
+            )
+
+        elif self.state == PLAYING:
+            self.player.draw(self.screen)
+            self.enemy.draw(self.screen)
+            
+            self.player.sword.draw(self.screen)
+            self.enemy.sword.draw(self.screen)
+
+            self.draw_hud()
+
+        elif self.state == GAME_OVER:
+            self.draw_game_over()
         
-        self.player.sword.draw(self.screen)
-        self.enemy.sword.draw(self.screen)
-
         pygame.display.flip()
     
     def reset_round(self):
@@ -179,25 +244,28 @@ class Game:
             print(f"Player {self.player_score} x {self.enemy_score} Enemy")
             
             if self.player_score == ROUNDS_TO_WIN:
-                print("You Win!")
-                self.running = False
+                # print("You Win!") # Old way
+                self.winner = "PLAYER"
+                self.state = GAME_OVER
                 return
             
-            pygame.time.delay(1500)
-            self.reset_round()
+            if not self.round_ending:
+                self.round_ending = True
+                self.round_end_time = pygame.time.get_ticks()
 
         elif not self.player.is_alive():
             self.enemy_score += 1
             print(f"Player {self.player_score} x {self.enemy_score} Enemy")
             
             if self.enemy_score == ROUNDS_TO_WIN:
-                print("Nice Try")
-                self.running = False
+                # print("Nice Try") # Old way
+                self.winner = "ENEMY"
+                self.state = GAME_OVER
                 return
             
-            pygame.time.delay(1500)
-            self.reset_round()
-    
+            self.round_ending = True
+            self.round_end_time = pygame.time.get_ticks()
+
     def draw_hud(self):
 
         # Player Life Bar
@@ -225,4 +293,20 @@ class Game:
                 WIN_WIDTH // 2 - score.get_width() // 2,
                 HUD_SCORE_Y
             )
+        )
+
+    def draw_game_over(self):
+        text = self.font.render(
+            f"{self.winner} WINS!", True, C_WHITE
+        )
+
+        restart_text = self.font.render(
+            "Press ENTER",
+            True,
+            C_WHITE
+        )
+        
+        self.screen.blit(
+            restart_text,
+            (WIN_WIDTH // 2 - text.get_width() // 2, WIN_HEIGHT // 2 + 50)
         )
