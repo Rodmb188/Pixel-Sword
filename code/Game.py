@@ -106,11 +106,8 @@ class Game:
             
                 if self.state == GAME_OVER:
                     if event.key == pygame.K_RETURN:
-                        self.player_score = 0
-                        self.enemy_score = 0
-                        self.reset_round()
-
-                    self.state = MENU
+                        self.reset_game()
+                        self.state = MENU
 
     def update(self):
         if self.state != PLAYING:
@@ -237,6 +234,14 @@ class Game:
 
         self.player.sword.attack_offset = ATTACK_OFFSET
         self.enemy.sword.attack_offset = ATTACK_OFFSET
+    
+    def reset_game(self):
+        self.player_score = 0
+        self.enemy_score = 0
+        self.winner = None
+        self.round_ending = False
+
+        self.reset_round()
 
     def check_round(self):
         if not self.enemy.is_alive():
